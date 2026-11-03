@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#170d2b">
+<title>لَمَّتْنَا</title>
+<style>
+:root{
+ --bg:#130a25;--card:#25143e;--card2:#352052;
+ --gold:#ffd166;--purple:#9562e8;--green:#24d18b;
+ --red:#ff5d70;--blue:#50c8ff;--white:#fff;
+}
+*{box-sizing:border-box}
+body{
+ margin:0;min-height:100vh;color:white;
+ font-family:Tahoma,Arial,sans-serif;
+ background:radial-gradient(ellipse at top,#58318a 0%,#25133e 40%,#10071e 100%);
+}
+header{text-align:center;padding:25px 12px 12px}
+.logo{font-size:43px;font-weight:900;color:var(--gold);text-shadow:0 5px 20px #0008}
+.subtitle{color:#d8c9ef;margin-top:6px}
+main{max-width:650px;margin:auto;padding:12px 15px 40px}
+.page{display:none;animation:appear .3s ease}
+.page.active{display:block}
+@keyframes appear{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.card{
+ background:linear-gradient(145deg,#39245a,#211335);
+ border:1px solid #ffffff20;border-radius:24px;
+ padding:20px;margin:12px 0;
+ box-shadow:0 15px 35px #0004;
+}
+h2{color:var(--gold);margin:5px 0 18px}
+h3{color:#f6eaff}
+p{line-height:1.7}
+input,select{
+ width:100%;padding:15px;border-radius:14px;
+ background:#170d29;color:white;border:1px solid #ffffff30;
+ font-size:16px;margin:6px 0;
+}
+button{
+ border:0;border-radius:15px;padding:14px 18px;
+ font-size:16px;font-weight:bold;cursor:pointer;
+ background:linear-gradient(135deg,#ffe49b,#ffbd4a);
+ color:#29163e;margin:5px 2px;
+ transition:.2s;
+}
+button:active{transform:scale(.96)}
+button.secondary{background:#7047a5;color:white}
+button.green{background:var(--green);color:#062d20}
+button.red{background:var(--red);color:white}
+button.blue{background:var(--blue);color:#082438}
+button:disabled{opacity:.4}
+.full{width:100%;padding:17px}
+.game-card{
+ width:100%;display:flex;align-items:center;gap:15px;
+ text-align:right;padding:20px;margin:10px 0;
+ color:white;background:linear-gradient(120deg,#63419a,#352052);
+ border:1px solid #ffffff20;border-radius:19px;
+}
+.game-icon{font-size:34px}
+.game-card small{display:block;color:#e0d2f4;margin-top:6px}
+.player{
+ display:flex;align-items:center;justify-content:space-between;
+ padding:10px 13px;background:#ffffff10;
+ border-radius:13px;margin:7px 0;
+}
+.big{text-align:center;font-size:30px;color:var(--gold);font-weight:bold;margin:22px 0}
+.center{text-align:center}
+.muted{color:#c9b8df;font-size:14px}
+.word{font-size:32px;text-align:center;color:var(--gold);padding:25px 8px;font-weight:bold}
+.score{display:flex;justify-content:space-between;padding:12px;border-bottom:1px solid #ffffff20}
+footer{text-align:center;color:#b9a9d1;padding:25px;font-size:13px}
+.hidden{display:none!important}
+.grid20{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:18px 0}
+.tile{aspect-ratio:1;padding:5px;background:#6845a0;color:white;font-size:22px}
+.tile.done{background:#159c5a}
+.tile.bad{background:#c43d54}
+.team-card{padding:15px;background:#ffffff10;border-radius:15px;margin:10px 0}
+.team-card label{display:block;padding:7px}
+.pill{display:inline-block;padding:7px 13px;border-radius:30px;background:#ffffff18;color:var(--gold);margin:4px}
+</style>
+</head>
+<body>
+<header>
+ <div class="logo">لَمَّتْنَا 🎉</div>
+ <div class="subtitle">لمة حلوة.. وضحكة من القلب</div>
+</header>
+
+<main>
+
+<!-- الصفحة الرئيسية -->
+<section id="home" class="page active">
+ <div class="card">
+  <h2>👥 اللاعبين</h2>
+  <div style="display:flex;gap:6px">
+   <input id="playerName" placeholder="اكتب اسم اللاعب">
+   <button onclick="addPlayer()">إضافة</button>
+  </div>
+  <div id="playersList"></div>
+  <p class="muted">أضف اللاعبين وابدأ التحدي!</p>
+ </div>
+
+ <div class="card">
+  <h2>🎮 اختار لعبتك</h2>
+  <button class="game-card" onclick="startOut()">
+   <span class="game-icon">🕵️</span>
+   <span>خارج الموضوع<small>مين مش عارف الكلمة؟</small></span>
+  </button>
+  <button class="game-card" onclick="startBoxes()">
+   <span class="game-icon">📦</span>
+   <span>الصناديق<small>اختبر سرعة وتركيز اللاعبين</small></span>
+  </button>
+  <button class="game-card" onclick="startCharades()">
+   <span class="game-icon">🎭</span>
+   <span>بدون كلام<small>مثّل وخلي فريقك يخمّن</small></span>
+  </button>
+ </div>
+
+ <div class="card">
+  <h2>🏆 ترتيب اللاعبين</h2>
+  <div id="homeScores">لا توجد نقاط حتى الآن.</div>
+ </div>
+</section>
+
+<!-- خارج الموضوع -->
+<section id="outPage" class="page">
+ <div class="card">
+  <h2>🕵️ خارج الموضوع</h2>
+  <div id="outContent"></div>
+ </div>
+</section>
+
+<!-- الصناديق -->
+<section id="boxesPage" class="page">
+ <div class="card">
+  <h2>📦 الصناديق</h2>
+  <div id="boxesContent"></div>
+ </div>
+</section>
+
+<!-- بدون كلام -->
+<section id="charadesPage" class="page">
+ <div class="card">
+  <h2>🎭 بدون كلام</h2>
+  <div id="charadesContent"></div>
+ </div>
+</section>
+
+</main>
+<footer>تطوير وبرمجة: <b>Riyad</b> | لَمَّتْنَا</footer>
+
+<script>
+const $=id=>document.getElementById(id);
+let players=[],scores={};
+
+function esc(s){
+ return String(s).replace(/[&<>"']/g,c=>({
+ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+ }[c]));
+}
+function showPage(id){
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+ $(id).classList.add('active');
+}
+function home(){
+ clearInterval(boxTimer);
+ clearInterval(charTimer);
+ showPage('home');
+ renderPlayers();
+}
+function addPlayer(){
+ let n=$('playerName').value.trim();
+ if(!n)return;
+ if(players.some(p=>p.toLowerCase()===n.toLowerCase())){
+ alert('الاسم موجود بالفعل');return;
+ }
+ players.push(n);scores[n]=scores[n]||0;
+ $('playerName').value='';
+ renderPlayers();
+}
+function removePlayer(i){players.splice(i,1);renderPlayers()}
+function renderPlayers(){
+ $('playersList').innerHTML=players.map((p,i)=>
+ `<div class="player"><b>${i+1}. ${esc(p)}</b>
+ <button class="red" onclick="removePlayer(${i})">حذف</button></div>`).join('');
+ let sorted=Object.entries(scores).filter(([p])=>players.includes(p)).sort((a,b)=>b[1]-a[1]);
+ $('homeScores').innerHTML=sorted.map(([p,s],i)=>
+ `<div class="score">${i+1}. ${esc(p)} <b>${s} نقطة</b></div>`).join('')||'لا توجد نقاط حتى الآن.';
+}
+function needPlayers(n=3){
+ if(players.length<n){alert('لازم تضيف '+n+' لاعبين على الأقل');return false}
+ return true;
+}
+
+/* ===== خارج الموضوع ===== */
+const categories={
+ 'الأكل':['كشري','ملوخية','بيتزا','محشي','فول','طعمية','كفتة'],
+ 'اللبس':['قميص','بنطلون','فستان','جاكيت','كوتشي'],
+ 'الخضار':['طماطم','خيار','بطاطس','جزر','بامية'],
+ 'المشروبات':['شاي','قهوة','عصير قصب','مانجو','ليمون'],
+ 'الأشياء المنزلية':['كرسي','مروحة','تلاجة','معلقة','مخدة'],
+ 'الحيوانات':['قطة','كلب','أسد','فيل','حصان']
+};
+let out={};
+
+function startOut(){
+ if(!needPlayers())return;
+ out={order:[...players].sort(()=>Math.random()-.5),votes:{},pass:0,round:1,q:0};
+ showPage('outPage');
+ $('outContent').innerHTML=`
+ <p>اختار الفئة وعدد الخارجين:</p>
+ <select id="outCat">${Object.keys(categories).map(x=>`<option>${x}</option>`).join('')}</select>
+ <select id="outCount"><option value="1">خارج واحد</option><option value="2">خارجان</option></select>
+ <button class="full" onclick="dealOut()">ابدأ توزيع الأدوار</button>
+ <button class="secondary full" onclick="home()">الرئيسية</button>`;
+}
+function dealOut(){
+ out.cat=$('outCat').value;
+ let list=categories[out.cat];
+ out.word=list[Math.floor(Math.random()*list.length)];
+ out.outside=out.order.slice(0,+$('outCount').value);
+ out.pass=0;out.phase='pass';renderOut();
+}
+function renderOut(){
+ let c=$('outContent');
+ if(out.phase==='pass'){
+  c.innerHTML=`<div class="big">${esc(out.order[out.pass])}</div>
+  <p class="center">سلّم الهاتف للاعب ده، وبعدها يضغط ليشوف دوره.</p>
+  <button class="full" onclick="revealOut()">اكشف دوري</button>`;
+ }else if(out.phase==='reveal'){
+  let p=out.order[out.pass];
+  c.innerHTML=`<div class="big">${esc(p)}</div>
+  <div class="word">${out.outside.includes(p)?'إنت خارج الموضوع 😶':esc(out.word)}</div>
+  <p class="center muted">احفظ دورك من غير ما حد يشوف الشاشة.</p>
+  <button class="green full" onclick="hideOut()">إخفاء وتسليم الهاتف</button>`;
+ }else if(out.phase==='questions'){
+  let a=out.order[out.q],b=out.order[(out.q+out.round)%out.order.length];
+  c.innerHTML=`<span class="pill">جولة الأسئلة ${out.round}/2</span>
+  <div class="big">${esc(a)}</div><p class="center">يسأل اللاعب: <b>${esc(b)}</b></p>
+  <button class="full" onclick="nextQuestion()">تم السؤال — التالي</button>`;
+ }else if(out.phase==='vote'){
+  let p=out.order[out.vote];
+  c.innerHTML=`<div class="big">${esc(p)}</div><p>اختار اللاعب اللي تشك إنه خارج الموضوع:</p>
+  <select id="voteChoice">${players.filter(x=>x!==p).map(x=>`<option>${esc(x)}</option>`).join('')}</select>
+  <button class="full" onclick="castVote()">تأكيد التصويت</button>`;
+ }else if(out.phase==='result'){
+  let counts={};
+  Object.values(out.votes).forEach(x=>counts[x]=(counts[x]||0)+1);
+  c.innerHTML=`<h3>نتيجة التصويت</h3>
+  ${Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([n,v])=>`<div class="score">${esc(n)} <b>${v} صوت</b></div>`).join('')}
+  <p>الخارج الحقيقي: <b>${out.outside.map(esc).join('، ')}</b></p>
+  <button class="full" onclick="guessOut()">مرحلة التخمين</button>`;
+ }else if(out.phase==='guess'){
+  c.innerHTML=`<p>اختار الكلمة التي تتوقعها:</p>
+  <select id="guessChoice">${categories[out.cat].map(x=>`<option>${x}</option>`).join('')}</select>
+  <button class="full" onclick="finishOut()">اعتماد التخمين</button>`;
+ }else if(out.phase==='final'){
+  c.innerHTML=`<div class="big">انتهت الجولة 🎉</div>
+  <p>الكلمة: <b>${esc(out.word)}</b></p>
+  <p>تخمين الخارج: <b>${esc(out.guess)}</b> ${out.guess===out.word?'✅':'❌'}</p>
+  <h3>النقاط</h3>
+  ${Object.entries(out.awards).map(([p,v])=>`<div class="score">${esc(p)} <b>+${v}</b></div>`).join('')}
+  <button class="full" onclick="startOut()">جولة جديدة</button>
+  <button class="secondary full" onclick="home()">الرئيسية</button>`;
+ }
+}
+function revealOut(){out.phase='reveal';renderOut()}
+function hideOut(){
+ out.pass++;
+ if(out.pass>=out.order.length){out.phase='questions';out.q=0}
+ else out.phase='pass';
+ renderOut();
+}
+function nextQuestion(){
+ out.q++;
+ if(out.q>=out.order.length){
+  if(out.round===1){out.round=2;out.q=0}
+  else{out.phase='vote';out.vote=0}
+ }
+ renderOut();
+}
+function castVote(){
+ out.votes[out.order[out.vote]]=$('voteChoice').value;
+ out.vote++;
+ if(out.vote>=out.order.length)out.phase='result';
+ renderOut();
+}
+function guessOut(){out.phase='guess';renderOut()}
+function finishOut(){
+ out.guess=$('guessChoice').value;out.awards={};
+ let civilians=players.filter(p=>!out.outside.includes(p));
+ let allFound=civilians.every(p=>out.outside.includes(out.votes[p]));
+ let noVotes=out.outside.every(p=>!Object.values(out.votes).includes(p));
+ players.forEach(p=>out.awards[p]=0);
+ out.outside.forEach(p=>{if(out.guess===out.word)out.awards[p]+=75});
+ civilians.forEach(p=>{
+  if(out.outside.includes(out.votes[p]))out.awards[p]+=allFound?50:25;
+  if(noVotes)out.awards[p]+=100;
+ });
+ Object.entries(out.awards).forEach(([p,v])=>scores[p]=(scores[p]||0)+v);
+ out.phase='final';renderOut();renderPlayers();
+}
+
+/* ===== الصناديق ===== */
+let boxTimer=null,boxOrder=[],boxNext=1,boxTime=0,boxIndex=0,boxResults=[],boxLock=false;
+function startBoxes(){
+ if(!needPlayers(1))return;
+ showPage('boxesPage');boxIndex=0;boxResults=[];
+ $('boxesContent').innerHTML=`<p>اضغط الأرقام من 1 إلى 20 بالترتيب خلال 40 ثانية. الخطأ يرجعك للبداية والوقت مستمر.</p>
+ <button class="full" onclick="boxPrepare()">ابدأ التحدي</button>
+ <button class="secondary full" onclick="home()">الرئيسية</button>`;
+}
+function boxPrepare(){
+ if(boxIndex>=players.length){
+  boxResults.sort((a,b)=>(b.done-a.done)||(a.time-b.time));
+  $('boxesContent').innerHTML=`<h3>🏆 ترتيب اللاعبين</h3>
+  ${boxResults.map((r,i)=>`<div class="score">${i+1}. ${esc(r.name)} <b>${r.done?r.time.toFixed(2)+' ثانية':'لم يكمل'}</b></div>`).join('')}
+  <button class="full" onclick="startBoxes()">إعادة اللعب</button>
+  <button class="secondary full" onclick="home()">الرئيسية</button>`;
+  return;
+ }
+ boxOrder=Array.from({length:20},(_,i)=>i+1).sort(()=>Math.random()-.5);
+ boxNext=1;boxTime=0;boxLock=false;
+ $('boxesContent').innerHTML=`<div class="big">${esc(players[boxIndex])}</div>
+ <p class="center">استعد، واضغط لما تكون جاهز.</p>
+ <button class="green full" onclick="boxCountdown()">أنا مستعد</button>`;
+}
+function boxCountdown(){
+ let n=3;
+ $('boxesContent').innerHTML=`<div class="big" id="boxCount">${n}</div>`;
+ let timer=setInterval(()=>{
+  n--;
+  if($('boxCount'))$('boxCount').textContent=n>0?n:'ابدأ!';
+  if(n<=0){clearInterval(timer);boxStart()}
+ },800);
+}
+function boxStart(){
+ $('boxesContent').innerHTML=`<div class="center">الوقت: <b id="boxClock">0.00</b> / 40</div>
+ <div class="grid20">${boxOrder.map(n=>`<button class="tile" id="tile${n}" onclick="boxTap(${n})">${n}</button>`).join('')}</div>
+ <div id="boxMsg" class="center muted">ابدأ!</div>`;
+ boxTimer=setInterval(()=>{
+  boxTime+=.05;
+  if($('boxClock'))$('boxClock').textContent=boxTime.toFixed(2);
+  if(boxTime>=40)boxFinish(false);
+ },50);
+}
+function boxTap(n){
+ if(boxLock)return;
+ if(n===boxNext){
+  $('tile'+n).classList.add('done');boxNext++;
+  if(boxNext===21)boxFinish(true);
+ }else{
+  $('tile'+n).classList.add('bad');
+  $('boxMsg').textContent='غلط! ارجع من الرقم 1';
+  boxLock=true;
+  setTimeout(()=>{
+   document.querySelectorAll('.tile').forEach(x=>x.classList.remove('done','bad'));
+   boxNext=1;boxLock=false;
+   if($('boxMsg'))$('boxMsg').textContent='ابدأ من 1';
+  },500);
+ }
+}
+function boxFinish(done){
+ clearInterval(boxTimer);
+ boxResults.push({name:players[boxIndex],time:boxTime,done});
+ $('boxesContent').innerHTML=`<div class="big">${done?'ممتاز! 🏆':'انتهى الوقت'}</div>
+ <p class="center">${esc(players[boxIndex])} — ${boxTime.toFixed(2)} ثانية</p>
+ <button class="full" onclick="boxIndex++;boxPrepare()">اللاعب التالي</button>`;
+}
+
+/* ===== بدون كلام ===== */
+const charadeWords=[
+ ['أكلة مصرية','كشري'],['أكلة مصرية','ملوخية'],['أكلة مصرية','محشي'],
+ ['أكلة مصرية','فول وطعمية'],['أكلة مصرية','حواوشي'],
+ ['مشروب','عصير قصب'],['مشروب','شاي'],['مشروب','سحلب'],
+ ['مكان مصري','الأهرامات'],['مكان مصري','خان الخليلي'],
+ ['مكان مصري','قلعة صلاح الدين'],['مسلسل مصري','ريا وسكينة'],
+ ['مسلسل مصري','الكبير أوي'],['مسلسل مصري','جعفر العمدة'],
+ ['حيوان','قرد'],['حيوان','زرافة'],['حيوان','أسد'],
+ ['شيء في البيت','مروحة'],['شيء في البيت','تلاجة'],
+ ['مهنة','دكتور'],['مهنة','مدرس'],['رياضة','كرة القدم'],
+ ['مواصلات','ميكروباص'],['شخصية كرتونية','بكار'],
+ ['شيء في المدرسة','سبورة'],['شيء في الشارع','إشارة مرور'],
+ ['فيلم مصري','عسل أسود'],['مكان','سوق']
+];
+let teams=[],teamWins={},teamTurn=0,roundMinutes=1;
+let shuffledWords=[],wordPos=0,currentWord='',currentTopic='';
+let charTimer=null,charLeft=0,changeCount=0;
+
+function startCharades(){
+ if(!needPlayers(4))return;
+ teams=[{name:'الفريق الأول',members:[]},{name:'الفريق الثاني',members:[]}];
+ teamWins={};shuffledWords=[];wordPos=0;
+ showPage('charadesPage');renderTeamSetup();
+}
+function renderTeamSetup(){
+ $('charadesContent').innerHTML=`<p>كوّن الفرق. اختار كل لاعب في فريق واحد فقط، وكل فريق لازم يضم لاعبين على الأقل.</p>
+ <div id="teamBuilder"></div>
+ <button class="secondary full" onclick="addTeam()">+ إضافة فريق</button>
+ <h3>مدة الجولة</h3>
+ <select id="charMinutes"><option value="1">دقيقة واحدة</option><option value="2">دقيقتان</option><option value="3">3 دقائق</option></select>
+ <button class="full" onclick="saveTeams()">تأكيد الفرق</button>
+ <button class="secondary full" onclick="home()">الرئيسية</button>`;
+ drawTeams();
+}
+function addTeam(){
+ teams.push({name:'الفريق '+(teams.length+1),members:[]});
+ drawTeams();
+}
+function drawTeams(){
+ $('teamBuilder').innerHTML=teams.map((t,i)=>`<div class="team-card">
+ <h3>${esc(t.name)}</h3>
+ ${players.map(p=>`<label><input type="checkbox" style="width:auto" ${t.members.includes(p)?'checked':''} onchange="assignPlayer(${i},'${esc(p)}',this.checked)"> ${esc(p)}</label>`).join('')}
+ </div>`).join('');
+}
+function assignPlayer(i,p,on){
+ teams.forEach(t=>t.members=t.members.filter(x=>x!==p));
+ if(on)teams[i].members.push(p);
+ drawTeams();
+}
+function saveTeams(){
+ if(teams.length<2||teams.some(t=>t.members.length<2)){
+  alert('كل فريق لازم يكون فيه لاعبان على الأقل');return;
+ }
+ if(teams.flatMap(t=>t.members).length!==players.length){
+  alert('وزّع كل اللاعبين على الفرق');return;
+ }
+ roundMinutes=+$('charMinutes').value;
+ teamWins=Object.fromEntries(teams.map(t=>[t.name,0]));
+ teamTurn=Math.floor(Math.random()*teams.length);
+ shuffledWords=charadeWords.slice().sort(()=>Math.random()-.5);
+ wordPos=0;
+ $('charadesContent').innerHTML=`<div class="big">🎭 قوانين اللعبة</div>
+ <p>• ممنوع الكلام أو إصدار أصوات أثناء التمثيل.</p>
+ <p>• لاعب واحد يشوف الكلمة ويمثلها لفريقه.</p>
+ <p>• النجاح يمنح كل لاعب في الفريق 20 نقطة.</p>
+ <p>• أول فريق يصل إلى 3 انتصارات يفوز.</p>
+ <p>الفريق الذي يبدأ عشوائيًا: <b>${esc(teams[teamTurn].name)}</b></p>
+ <button class="full" onclick="nextCharadeTurn()">ابدأ اللعب</button>`;
+}
+function getNextWord(){
+ if(wordPos>=shuffledWords.length){
+  shuffledWords=charadeWords.slice().sort(()=>Math.random()-.5);
+  wordPos=0;
+ }
+ return shuffledWords[wordPos++];
+}
+function nextCharadeTurn(){
+ let winner=teams.find(t=>teamWins[t.name]>=3);
+ if(winner){
+  showCharadeWinner(winner);return;
+ }
+ let team=teams[teamTurn];
+ let actor=team.members[Math.floor(Math.random()*team.members.length)];
+ let picked=getNextWord();
+ currentTopic=picked[0];currentWord=picked[1];changeCount=0;
+ renderSecret(actor);
+}
+function renderSecret(actor){
+ $('charadesContent').innerHTML=`<span class="pill">${esc(teams[teamTurn].name)}</span>
+ <div class="big">دور الممثل 🎭</div>
+ <p class="center">مرّر الهاتف إلى: <b>${esc(actor)}</b></p>
+ <p class="muted center">الكلمة مخفية. يمكنك تغييرها مرتين فقط، ولن تتكرر الكلمة في نفس دورة القائمة.</p>
+ <div class="word" id="secretWord">••••••••</div>
+ <button class="full" onclick="revealCharadeWord()">اكشف الكلمة</button>
+ <button class="secondary full" id="changeWordBtn" onclick="changeCharadeWord()">تغيير الكلمة (2 متبقي)</button>
+ <button class="green full" onclick="startCharadeRound()">ابدأ التمثيل</button>`;
+}
+function revealCharadeWord(){
+ $('secretWord').textContent=currentTopic+' — '+currentWord;
+}
+function changeCharadeWord(){
+ if(changeCount>=2)return;
+ let picked=getNextWord();
+ currentTopic=picked[0];currentWord=picked[1];changeCount++;
+ revealCharadeWord();
+ $('changeWordBtn').textContent='تغيير الكلمة ('+(2-changeCount)+' متبقي)';
+ if(changeCount>=2)$('changeWordBtn').disabled=true;
+}
+function startCharadeRound(){
+ charLeft=roundMinutes*60;
+ $('charadesContent').innerHTML=`<div class="big" id="charClock">${formatTime(charLeft)}</div>
+ <p class="center">${esc(teams[teamTurn].name)} — ابدأوا التخمين!</p>
+ <button class="blue full" onclick="alert('الموضوع: '+currentTopic)">كشف نوع الموضوع</button>
+ <button class="green full" onclick="finishCharade(true)">نجحوا ✅</button>
+ <button class="red full" onclick="finishCharade(false)">فشلوا ❌</button>`;
+ clearInterval(charTimer);
+ charTimer=setInterval(()=>{
+  charLeft--;
+  if($('charClock'))$('charClock').textContent=formatTime(charLeft);
+  if(charLeft<=0){clearInterval(charTimer);finishCharade(false)}
+ },1000);
+}
+function formatTime(s){
+ return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+}
+function finishCharade(success){
+ clearInterval(charTimer);
+ let team=teams[teamTurn];
+ if(success){
+  teamWins[team.name]++;
+  team.members.forEach(p=>scores[p]=(scores[p]||0)+20);
+ }
+ renderPlayers();
+ $('charadesContent').innerHTML=`<div class="big">${success?'نجاح! 🎉':'انتهى الدور'}</div>
+ <p>الموضوع: <b>${esc(currentTopic)}</b></p>
+ <p>الكلمة: <b>${esc(currentWord)}</b></p>
+ <h3>الانتصارات</h3>
+ ${teams.map(t=>`<div class="score">${esc(t.name)} <b>${teamWins[t.name]} / 3</b></div>`).join('')}
+ <button class="full" onclick="continueCharades()">الفريق التالي</button>
+ <button class="secondary full" onclick="home()">الرئيسية</button>`;
+}
+function continueCharades(){
+ let winner=teams.find(t=>teamWins[t.name]>=3);
+ if(winner){showCharadeWinner(winner);return}
+ teamTurn=(teamTurn+1)%teams.length;
+ nextCharadeTurn();
+}
+function showCharadeWinner(winner){
+ $('charadesContent').innerHTML=`<div class="big">🏆 ${esc(winner.name)} فاز!</div>
+ ${teams.map(t=>`<div class="score">${esc(t.name)} <b>${teamWins[t.name]} انتصار</b></div>`).join('')}
+ <button class="full" onclick="startCharades()">لعبة جديدة</button>
+ <button class="secondary full" onclick="home()">الرئيسية</button>`;
+}
+renderPlayers();
+</script>
+</body>
+</html>
