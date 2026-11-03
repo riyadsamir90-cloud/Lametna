@@ -1,0 +1,27 @@
+{
+  "name": "لَمَّتْنَا",
+  "short_name": "لَمَّتْنَا",
+  "description": "لعبة تجمعات وأصحاب",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#170b35",
+  "theme_color": "#5422a8",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "./icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
